@@ -7,6 +7,8 @@ import { computed } from 'vue';
 
 const fieldOptions = ref<IFieldMeta[]>([]);
 
+const loading = ref<Boolean>(false);
+
 const form = reactive({
   startTime: new Date(),
   workHours: 8,
@@ -66,6 +68,7 @@ const rules = {
 }
 
 async function handleSubmit() {
+  loading.value = true;
   let _startTime = dayjs(dayjs(form.startTime).format('YYYY-MM-DD'));
   const startTimeField = await table.getFieldById(form.startTimeField)
   const endTimeField = await table.getFieldById(form.endTimeField)
@@ -77,40 +80,43 @@ async function handleSubmit() {
     endTimeField.setValue(recordId, +list[0][1])
     _startTime = list[0][1];
   }
+  loading.value = false;
 }
 </script>
 
 <template>
-  <AForm :model="form" layout="vertical" @submit="handleSubmit" :rules="rules">
-    <AFormItem label="每日工时" field="workHours">
-      <AInputNumber v-model="form.workHours" />
-    </AFormItem>
-    <AFormItem label="开始时间" field="startTime">
-      <ADatePicker v-model="form.startTime" style="width: 100%;"/>
-    </AFormItem>
-    <AFormItem label="工时字段" field="workHoursField">
-      <ASelect v-model="form.workHoursField" allow-clear>
-        <AOption v-for="item in workHoursFieldOptions" :value="item.id" :label="item.name"></AOption>
-      </ASelect>
-    </AFormItem>
-    <AFormItem label="开始时间字段" field="startTimeField">
-      <ASelect v-model="form.startTimeField" allow-clear>
-        <AOption v-for="item in startTimeFieldOptions" :value="item.id" :label="item.name"></AOption>
-      </ASelect>
-    </AFormItem>
-    <AFormItem label="结束时间字段" field="endTimeField">
-      <ASelect v-model="form.endTimeField" allow-clear>
-        <AOption v-for="item in endTimeFieldOptions" :value="item.id" :label="item.name"></AOption>
-      </ASelect>
-    </AFormItem>
-    <!-- <AFormItem label="分组字段" field="groupField">
-      <ASelect v-model="form.groupField" allow-clear>
-        <AOption v-for="item in fieldOptions" :value="item.id" :label="item.name"></AOption>
-      </ASelect>
-    </AFormItem> -->
-    <AFormItem>
-      <AButton type="primary" html-type="submit">生成</AButton>
-    </AFormItem>
-  </AForm>
+  <ASpin :loading="loading" :tip="'数据生成中~~'" style="display: block;">
+    <AForm :model="form" layout="vertical" @submit="handleSubmit" :rules="rules">
+      <AFormItem label="每日工时" field="workHours">
+        <AInputNumber v-model="form.workHours" />
+      </AFormItem>
+      <AFormItem label="开始时间" field="startTime">
+        <ADatePicker v-model="form.startTime" style="width: 100%;"/>
+      </AFormItem>
+      <AFormItem label="工时字段" field="workHoursField">
+        <ASelect v-model="form.workHoursField" allow-clear>
+          <AOption v-for="item in workHoursFieldOptions" :value="item.id" :label="item.name"></AOption>
+        </ASelect>
+      </AFormItem>
+      <AFormItem label="开始时间字段" field="startTimeField">
+        <ASelect v-model="form.startTimeField" allow-clear>
+          <AOption v-for="item in startTimeFieldOptions" :value="item.id" :label="item.name"></AOption>
+        </ASelect>
+      </AFormItem>
+      <AFormItem label="结束时间字段" field="endTimeField">
+        <ASelect v-model="form.endTimeField" allow-clear>
+          <AOption v-for="item in endTimeFieldOptions" :value="item.id" :label="item.name"></AOption>
+        </ASelect>
+      </AFormItem>
+      <!-- <AFormItem label="分组字段" field="groupField">
+        <ASelect v-model="form.groupField" allow-clear>
+          <AOption v-for="item in fieldOptions" :value="item.id" :label="item.name"></AOption>
+        </ASelect>
+      </AFormItem> -->
+      <AFormItem>
+        <AButton type="primary" html-type="submit">生成</AButton>
+      </AFormItem>
+    </AForm>
+  </ASpin>
 </template>
 
